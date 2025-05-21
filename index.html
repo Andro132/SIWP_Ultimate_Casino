@@ -1,14 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>index</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roulette with Ball</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-    <h1 class="title">Tralalero tralala</h1>
-    <p id="currentTime"></p>
+    <div class="roulette-container">
+        <svg id="roulette" width="400" height="400" viewBox="0 0 400 400">
+            <g id="wheel"></g>
+            <circle id="ball" r="8" fill="white" cx="200" cy="30" />
+        </svg>
+        <button onclick="spinBall()">Spin</button>
+        <p id="result"></p>
+    </div>
     <script src="script.js"></script>
 </body>
 

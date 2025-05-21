@@ -1,0 +1,20 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #111;
+    color: white;
+    font-family: sans-serif;
+    margin: 0;
+    flex-direction: column;
+}
+
+.roulette-container {
+    text-align: center;
+}
+
+svg {
+    margin-bottom: 20px;
+    background: #222;
+}
