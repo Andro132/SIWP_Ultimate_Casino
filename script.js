@@ -4,7 +4,14 @@ const numbers = [
     22, 18, 29, 7, 28, 12, 35, 3, 26
 ];
 
-const colors = numbers.map(num => (num === 0 ? 'green' : (numbers.indexOf(num) % 2 === 0 ? 'red' : 'black')));
+// Correct color assignment for European roulette (red/black/green)
+const colors = [
+    'green', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red',
+    'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red',
+    'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red',
+    'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black'
+];
+
 const sliceAngle = 360 / numbers.length;
 const wheelGroup = document.getElementById('wheel');
 const ball = document.getElementById('ball');
@@ -19,6 +26,7 @@ function drawWheel() {
         const x2 = 200 + 190 * Math.cos((angle + sliceAngle) * Math.PI / 180);
         const y2 = 200 + 190 * Math.sin((angle + sliceAngle) * Math.PI / 180);
 
+        // Create path for each segment of the wheel
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', `
       M200,200 
@@ -26,9 +34,10 @@ function drawWheel() {
       A190,190 0 ${largeArc} 1 ${x2},${y2} 
       Z
     `);
-        path.setAttribute('fill', colors[i]);
+        path.setAttribute('fill', colors[i]); // Use red/black/green colors
         wheelGroup.appendChild(path);
 
+        // Adding number labels around the wheel (in their correct positions)
         const textAngle = angle + sliceAngle / 2;
         const tx = 200 + 140 * Math.cos(textAngle * Math.PI / 180);
         const ty = 200 + 140 * Math.sin(textAngle * Math.PI / 180);
@@ -65,12 +74,20 @@ function animateBall(targetAngle, callback) {
     function frame(time) {
         const elapsed = time - start;
         const progress = Math.min(elapsed / duration, 1);
-        const easing = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-        const currentAngle = targetAngle * easing;
+
+        // Ease-out cubic bounce for smooth stop
+        const easing = 1 - Math.pow(1 - progress, 3);
+
+        // Bounce effect adjusted: slower frequency, gradually reducing intensity
+        const bounceFrequency = 4; // Lower frequency for fewer bounces
+        const bounceIntensity = 0.25 * (1 - progress);
+        const bounce = bounceIntensity * Math.sin(bounceFrequency * Math.PI * progress);
+
+        const currentAngle = targetAngle * (easing + bounce);
 
         const rad = currentAngle * Math.PI / 180;
         const cx = 200 + radius * Math.cos(rad);
-        const cy = 200 - radius * Math.sin(rad); // negative because SVG y-axis is down
+        const cy = 200 - radius * Math.sin(rad);
 
         ball.setAttribute('cx', cx);
         ball.setAttribute('cy', cy);
