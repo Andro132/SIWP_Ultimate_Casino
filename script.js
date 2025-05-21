@@ -18,6 +18,10 @@ const resultElement = document.getElementById("result");
 const betNumberInput = document.getElementById("bet-number");
 const betColorSelect = document.getElementById("bet-color");
 
+let betPlaced = false;
+let storedBetNumber = null;
+let storedBetColor = null;
+
 function drawWheel() {
     for (let i = 0; i < numbers.length; i++) {
         const angle = i * sliceAngle;
@@ -57,7 +61,14 @@ function spinBall() {
 
     animateBall(finalAngle, () => {
         resultElement.textContent = `Result: ${numbers[targetIndex]}`;
-        checkBet(targetIndex);
+
+        // Only check bet if one was placed
+        if (betPlaced) {
+            checkBet(targetIndex);
+            betPlaced = false; // Reset after checking
+        } else {
+            document.getElementById("message").textContent = ""; // Clear message
+        }
     });
 }
 
@@ -95,30 +106,35 @@ function animateBall(targetAngle, callback) {
     requestAnimationFrame(frame);
 }
 
+
+
 function placeBet() {
     const betNumber = parseInt(betNumberInput.value);
-    if (betNumber >= 0 && betNumber <= 36) {
-        alert(`You have placed a bet on number ${betNumber}`);
-    } else {
+    if (isNaN(betNumber) || betNumber < 0 || betNumber > 36) {
         alert("Please enter a valid number between 0 and 36.");
+        return;
     }
+
+    storedBetNumber = betNumber;
+    betPlaced = true;
+    alert(`You placed a bet on number ${betNumber}`);
 }
 
 function placeColorBet() {
     const betColor = betColorSelect.value;
-    alert(`You have placed a bet on ${betColor} color`);
+    storedBetColor = betColor;
+    betPlaced = true;
+    alert(`You placed a bet on color ${betColor}`);
 }
 
 function checkBet(targetIndex) {
-    const betNumber = parseInt(betNumberInput.value);
-    const betColor = betColorSelect.value;
     const resultNumber = numbers[targetIndex];
     const resultColor = colors[targetIndex];
     const messageElement = document.getElementById("message");
 
+    let numberMatch = storedBetNumber === resultNumber;
+    let colorMatch = storedBetColor === resultColor;
     let message = "";
-    let numberMatch = betNumber === resultNumber;
-    let colorMatch = betColor === resultColor;
 
     if (numberMatch && colorMatch) {
         message = "🎉 Jackpot! You won both the number and color bets!";
@@ -131,5 +147,9 @@ function checkBet(targetIndex) {
     }
 
     messageElement.textContent = message;
+
+    // Reset stored bets after checking
+    storedBetNumber = null;
+    storedBetColor = null;
 }
 
