@@ -4,7 +4,6 @@ const numbers = [
     22, 18, 29, 7, 28, 12, 35, 3, 26
 ];
 
-// Correct color assignment for European roulette (red/black/green)
 const colors = [
     'green', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red',
     'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red',
@@ -16,6 +15,8 @@ const sliceAngle = 360 / numbers.length;
 const wheelGroup = document.getElementById('wheel');
 const ball = document.getElementById('ball');
 const resultElement = document.getElementById("result");
+const betNumberInput = document.getElementById("bet-number");
+const betColorSelect = document.getElementById("bet-color");
 
 function drawWheel() {
     for (let i = 0; i < numbers.length; i++) {
@@ -26,18 +27,11 @@ function drawWheel() {
         const x2 = 200 + 190 * Math.cos((angle + sliceAngle) * Math.PI / 180);
         const y2 = 200 + 190 * Math.sin((angle + sliceAngle) * Math.PI / 180);
 
-        // Create path for each segment of the wheel
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', `
-      M200,200 
-      L${x1},${y1} 
-      A190,190 0 ${largeArc} 1 ${x2},${y2} 
-      Z
-    `);
-        path.setAttribute('fill', colors[i]); // Use red/black/green colors
+        path.setAttribute('d', `M200,200 L${x1},${y1} A190,190 0 ${largeArc} 1 ${x2},${y2} Z`);
+        path.setAttribute('fill', colors[i]);
         wheelGroup.appendChild(path);
 
-        // Adding number labels around the wheel (in their correct positions)
         const textAngle = angle + sliceAngle / 2;
         const tx = 200 + 140 * Math.cos(textAngle * Math.PI / 180);
         const ty = 200 + 140 * Math.sin(textAngle * Math.PI / 180);
@@ -57,12 +51,13 @@ function drawWheel() {
 drawWheel();
 
 function spinBall() {
-    const spins = 5; // Number of full rotations
+    const spins = 5;
     const targetIndex = Math.floor(Math.random() * numbers.length);
     const finalAngle = 360 * spins + (360 - targetIndex * sliceAngle - sliceAngle / 2);
 
     animateBall(finalAngle, () => {
         resultElement.textContent = `Result: ${numbers[targetIndex]}`;
+        checkBet(targetIndex);
     });
 }
 
@@ -75,11 +70,9 @@ function animateBall(targetAngle, callback) {
         const elapsed = time - start;
         const progress = Math.min(elapsed / duration, 1);
 
-        // Ease-out cubic bounce for smooth stop
         const easing = 1 - Math.pow(1 - progress, 3);
 
-        // Bounce effect adjusted: slower frequency, gradually reducing intensity
-        const bounceFrequency = 4; // Lower frequency for fewer bounces
+        const bounceFrequency = 4;
         const bounceIntensity = 0.25 * (1 - progress);
         const bounce = bounceIntensity * Math.sin(bounceFrequency * Math.PI * progress);
 
@@ -101,3 +94,42 @@ function animateBall(targetAngle, callback) {
 
     requestAnimationFrame(frame);
 }
+
+function placeBet() {
+    const betNumber = parseInt(betNumberInput.value);
+    if (betNumber >= 0 && betNumber <= 36) {
+        alert(`You have placed a bet on number ${betNumber}`);
+    } else {
+        alert("Please enter a valid number between 0 and 36.");
+    }
+}
+
+function placeColorBet() {
+    const betColor = betColorSelect.value;
+    alert(`You have placed a bet on ${betColor} color`);
+}
+
+function checkBet(targetIndex) {
+    const betNumber = parseInt(betNumberInput.value);
+    const betColor = betColorSelect.value;
+    const resultNumber = numbers[targetIndex];
+    const resultColor = colors[targetIndex];
+    const messageElement = document.getElementById("message");
+
+    let message = "";
+    let numberMatch = betNumber === resultNumber;
+    let colorMatch = betColor === resultColor;
+
+    if (numberMatch && colorMatch) {
+        message = "🎉 Jackpot! You won both the number and color bets!";
+    } else if (numberMatch) {
+        message = "🎯 Great! You won the number bet!";
+    } else if (colorMatch) {
+        message = "🟥🖤 You won the color bet!";
+    } else {
+        message = "😞 Sorry, you lost both bets. Try again!";
+    }
+
+    messageElement.textContent = message;
+}
+
