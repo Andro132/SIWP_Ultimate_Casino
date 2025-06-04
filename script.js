@@ -83,8 +83,8 @@ function animateBall(targetAngle, callback) {
 
         const easing = 1 - Math.pow(1 - progress, 3);
 
-        const bounceFrequency = 4;
-        const bounceIntensity = 0.25 * (1 - progress);
+        const bounceFrequency = 3;
+        const bounceIntensity = 0.1 * (1 - progress);
         const bounce = bounceIntensity * Math.sin(bounceFrequency * Math.PI * progress);
 
         const currentAngle = targetAngle * (easing + bounce);
