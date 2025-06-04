@@ -143,7 +143,7 @@ function checkBet(targetIndex) {
     } else if (colorMatch) {
         message = "🟥🖤 You won the color bet!";
     } else {
-        message = "😞 Sorry, you lost both bets. Try again!";
+        message = "😞 Sorry, you lost. Try again!";
     }
 
     messageElement.textContent = message;
@@ -153,3 +153,15 @@ function checkBet(targetIndex) {
     storedBetColor = null;
 }
 
+function placeBet() {
+    const betNumber = parseInt(betNumberInput.value);
+
+    if (isNaN(betNumber) || !numbers.includes(betNumber)) {
+        alert("Please enter a valid number found on the roulette wheel (0–36).");
+        return;
+    }
+
+    storedBetNumber = betNumber;
+    betPlaced = true;
+    alert(`You placed a bet on number ${betNumber}`);
+}
