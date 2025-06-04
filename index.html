@@ -27,6 +27,7 @@
                 <input type="number" id="bet-number" min="0" max="36" />
                 <button onclick="placeBet()">Place Bet</button>
             </div>
+
             <div class="betting-options">
                 <label for="bet-color">Bet on Color:</label>
                 <select id="bet-color">
@@ -35,6 +36,16 @@
                     <option value="green">Green</option>
                 </select>
                 <button onclick="placeColorBet()">Place Color Bet</button>
+            </div>
+            <div class="chip-selector">
+                <label>Select Bet Amount:</label>
+                <div id="chips">
+                    <button class="chip" data-value="1">$1</button>
+                    <button class="chip" data-value="5">$5</button>
+                    <button class="chip" data-value="10">$10</button>
+                    <button class="chip" data-value="25">$25</button>
+                    <button class="chip" data-value="100">$100</button>
+                </div>
             </div>
         </div>
     </div>

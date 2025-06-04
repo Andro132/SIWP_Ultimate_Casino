@@ -10,7 +10,18 @@ const colors = [
     'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red',
     'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black'
 ];
+let storedBetAmount = 0;
+const chipButtons = document.querySelectorAll(".chip");
 
+chipButtons.forEach(chip => {
+    chip.addEventListener("click", () => {
+        chipButtons.forEach(btn => btn.classList.remove("selected"));
+        chip.classList.add("selected");
+        storedBetAmount = parseInt(chip.getAttribute("data-value"));
+    });
+});
+
+const betAmountInput = document.getElementById("bet-amount");
 const sliceAngle = 360 / numbers.length;
 const wheelGroup = document.getElementById('wheel');
 const ball = document.getElementById('ball');
@@ -18,7 +29,8 @@ const resultElement = document.getElementById("result");
 const betNumberInput = document.getElementById("bet-number");
 const betColorSelect = document.getElementById("bet-color");
 
-let betPlaced = false;
+let storedBetAmountNumber = 0;
+let storedBetAmountColor = 0;
 let storedBetNumber = null;
 let storedBetColor = null;
 
@@ -63,12 +75,12 @@ function spinBall() {
         resultElement.textContent = `Result: ${numbers[targetIndex]}`;
 
         // Only check bet if one was placed
-        if (betPlaced) {
+        if (storedBetNumber !== null || storedBetColor !== null) {
             checkBet(targetIndex);
-            betPlaced = false; // Reset after checking
         } else {
-            document.getElementById("message").textContent = ""; // Clear message
+            document.getElementById("message").textContent = "";
         }
+
     });
 }
 
@@ -106,53 +118,6 @@ function animateBall(targetAngle, callback) {
     requestAnimationFrame(frame);
 }
 
-
-
-function placeBet() {
-    const betNumber = parseInt(betNumberInput.value);
-    if (isNaN(betNumber) || betNumber < 0 || betNumber > 36) {
-        alert("Please enter a valid number between 0 and 36.");
-        return;
-    }
-
-    storedBetNumber = betNumber;
-    betPlaced = true;
-    alert(`You placed a bet on number ${betNumber}`);
-}
-
-function placeColorBet() {
-    const betColor = betColorSelect.value;
-    storedBetColor = betColor;
-    betPlaced = true;
-    alert(`You placed a bet on color ${betColor}`);
-}
-
-function checkBet(targetIndex) {
-    const resultNumber = numbers[targetIndex];
-    const resultColor = colors[targetIndex];
-    const messageElement = document.getElementById("message");
-
-    let numberMatch = storedBetNumber === resultNumber;
-    let colorMatch = storedBetColor === resultColor;
-    let message = "";
-
-    if (numberMatch && colorMatch) {
-        message = "🎉 Jackpot! You won both the number and color bets!";
-    } else if (numberMatch) {
-        message = "🎯 Great! You won the number bet!";
-    } else if (colorMatch) {
-        message = "🟥🖤 You won the color bet!";
-    } else {
-        message = "😞 Sorry, you lost. Try again!";
-    }
-
-    messageElement.textContent = message;
-
-    // Reset stored bets after checking
-    storedBetNumber = null;
-    storedBetColor = null;
-}
-
 function placeBet() {
     const betNumber = parseInt(betNumberInput.value);
 
@@ -161,7 +126,84 @@ function placeBet() {
         return;
     }
 
+    const selectedChip = document.querySelector(".chip.selected");
+    if (!selectedChip) {
+        alert("Please select a chip to set your bet amount.");
+        return;
+    }
+
+    const amount = parseInt(selectedChip.getAttribute("data-value"));
     storedBetNumber = betNumber;
-    betPlaced = true;
-    alert(`You placed a bet on number ${betNumber}`);
+    storedBetAmountNumber = amount;
+    alert(`You placed a bet of $${amount} on number ${betNumber}`);
 }
+
+function placeColorBet() {
+    const betColor = betColorSelect.value;
+
+    const selectedChip = document.querySelector(".chip.selected");
+    if (!selectedChip) {
+        alert("Please select a chip to set your bet amount.");
+        return;
+    }
+
+    const amount = parseInt(selectedChip.getAttribute("data-value"));
+    storedBetColor = betColor;
+    storedBetAmountColor = amount;
+    alert(`You placed a bet of $${amount} on color ${betColor}`);
+}
+
+
+
+
+function checkBet(targetIndex) {
+    const resultNumber = numbers[targetIndex];
+    const resultColor = colors[targetIndex];
+    const messageElement = document.getElementById("message");
+
+    let numberMatch = storedBetNumber === resultNumber;
+    let colorMatch = storedBetColor === resultColor;
+
+    let totalWin = 0;
+    let totalLoss = 0;
+
+    if (storedBetNumber !== null) {
+        if (numberMatch) {
+            totalWin += storedBetAmountNumber * 36;
+        } else {
+            totalLoss += storedBetAmountNumber;
+        }
+    }
+
+    if (storedBetColor !== null) {
+        if (colorMatch) {
+            totalWin += storedBetAmountColor * 2;
+        } else {
+            totalLoss += storedBetAmountColor;
+        }
+    }
+
+    let message = "";
+
+    if (totalWin > 0 && totalLoss === 0) {
+        message = `🎉 You won $${totalWin}!`;
+    } else if (totalWin > 0 && totalLoss > 0) {
+        message = `⚖️ You won $${totalWin} but lost $${totalLoss}. Net: $${totalWin - totalLoss}`;
+    } else {
+        message = `😞 You lost $${totalLoss}. Better luck next time!`;
+    }
+
+    messageElement.textContent = message;
+
+    // Reset stored bets
+    storedBetNumber = null;
+    storedBetColor = null;
+    storedBetAmountNumber = 0;
+    storedBetAmountColor = 0;
+
+    // Unselect chips
+    document.querySelectorAll(".chip").forEach(btn => btn.classList.remove("selected"));
+}
+
+
+

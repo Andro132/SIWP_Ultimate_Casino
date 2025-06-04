@@ -104,3 +104,35 @@ input[type="number"] {
     color: #ffeb3b;
     font-weight: bold;
 }
+
+.chip-selector {
+    margin-top: 20px;
+    color: white;
+}
+
+#chips {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.chip {
+    background-color: #fbc02d;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.chip:hover {
+    transform: scale(1.1);
+}
+
+.chip.selected {
+    border: 3px solid #4caf50;
+    box-shadow: 0 0 10px #4caf50;
+}
