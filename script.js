@@ -17,8 +17,6 @@ let gameState = {
 
 // DOM Elements
 const elements = {
-    ball: document.getElementById('ball'),
-    ballGroup: document.getElementById('ballGroup'),
     wheel: document.getElementById('wheel'),
     roulette: document.getElementById('roulette'),
     spinBtn: document.getElementById('spinBtn'),
@@ -335,61 +333,78 @@ function spinWheel() {
         elements.message.innerHTML = '';
     }
     
-    // Random result
-    const resultIndex = Math.floor(Math.random() * numbers.length);
-    const resultNumber = numbers[resultIndex];
-    const resultColor = getNumberColor(resultNumber);
-
-    const ballAngle = 360 - ((360 / numbers.length) * resultIndex);
-    if (elements.ballGroup) {
-        elements.ballGroup.style.transition = 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        elements.ballGroup.style.transform = `rotate(${ballAngle}deg)`;
-    }
+    // Pick the winning number first
+    const randomIndex = Math.floor(Math.random() * numbers.length);
+    const winningNumber = numbers[randomIndex];
+    const winningColor = getNumberColor(winningNumber);
     
-    // Animate wheel spin
-    const spins = 5 + Math.random() * 3; // 5-8 full rotations
-    const finalAngle = 360 * spins + (360 - resultIndex * (360 / numbers.length));
+    // Store the result
+    gameState.lastResult = {
+        number: winningNumber,
+        color: winningColor,
+        index: randomIndex
+    };
     
-    // Apply spin animation
-    if (elements.roulette) {
-        elements.roulette.style.transform = `rotate(${finalAngle}deg)`;
-    }
-    
-    // Calculate winnings after animation
-    setTimeout(() => {
-        gameState.lastResult = {
-            number: resultNumber,
-            color: resultColor,
-            index: resultIndex
-        };
-        
+    // Get ball element
+    const ballElement = document.querySelector('#roulette circle[r="10"]');
+    if (!ballElement) {
+        console.error('Ball element not found');
         processResults();
+        resetSpinState();
+        return;
+    }
+    
+    // Calculate target position using EXACT same logic as wheel drawing
+    const sliceAngle = 360 / numbers.length;
+    const centerX = 250;
+    const centerY = 250;
+    const ballRadius = 210;
+    
+    // Use the exact same angle calculation as the text positioning in drawRouletteWheel
+    const targetAngle = randomIndex * sliceAngle + sliceAngle / 2;
+    
+    // Calculate current ball position (starts at top, which is -90 degrees in our coordinate system)
+    const currentAngle = -90; // Ball starts at top (12 o'clock)
+    
+    // Calculate how much we need to rotate
+    // Add multiple full rotations (5-8 spins) plus the target angle
+    const fullRotations = 5 + Math.random() * 3; // Random between 5-8 spins
+    const totalRotation = fullRotations * 360 + (targetAngle - currentAngle);
+    
+    // Apply CSS transition for smooth spinning
+    ballElement.style.transition = 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    ballElement.style.transformOrigin = `${centerX}px ${centerY}px`;
+    ballElement.style.transform = `rotate(${totalRotation}deg)`;
+    
+    // After animation completes, position ball at exact coordinates and show results
+    setTimeout(() => {
+        // Calculate final ball position coordinates
+        const ballX = centerX + ballRadius * Math.cos(targetAngle * Math.PI / 180);
+        const ballY = centerY + ballRadius * Math.sin(targetAngle * Math.PI / 180);
         
-        // Reset spin state
-        gameState.isSpinning = false;
-        if (elements.spinBtn) {
-            elements.spinBtn.disabled = false;
-        }
-        if (elements.clearBetsBtn) {
-            elements.clearBetsBtn.disabled = false;
-        }
-        if (elements.spinText) {
-            elements.spinText.textContent = 'Spin Wheel';
-        }
+        // Remove transition and set exact position
+        ballElement.style.transition = 'none';
+        ballElement.style.transform = 'none';
+        ballElement.setAttribute('cx', ballX);
+        ballElement.setAttribute('cy', ballY);
         
-        // Reset wheel transform for next spin
-        setTimeout(() => {
-            if (elements.roulette) {
-                elements.roulette.style.transition = 'none';
-                elements.roulette.style.transform = 'rotate(0deg)';
-                setTimeout(() => {
-                    if (elements.roulette) {
-                        elements.roulette.style.transition = 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                    }
-                }, 50);
-            }
-        }, 1000);
-    }, 4000);
+        // Process results
+        processResults();
+        resetSpinState();
+    }, 4000); // Match the 4s transition duration
+}
+
+function resetSpinState() {
+    gameState.isSpinning = false;
+    if (elements.spinBtn) {
+        elements.spinBtn.disabled = false;
+    }
+    if (elements.clearBetsBtn) {
+        elements.clearBetsBtn.disabled = false;
+    }
+    if (elements.spinText) {
+        elements.spinText.textContent = 'Spin Wheel';
+    }
 }
 
 function processResults() {
