@@ -17,6 +17,8 @@ let gameState = {
 
 // DOM Elements
 const elements = {
+    ball: document.getElementById('ball'),
+    ballGroup: document.getElementById('ballGroup'),
     wheel: document.getElementById('wheel'),
     roulette: document.getElementById('roulette'),
     spinBtn: document.getElementById('spinBtn'),
@@ -337,6 +339,12 @@ function spinWheel() {
     const resultIndex = Math.floor(Math.random() * numbers.length);
     const resultNumber = numbers[resultIndex];
     const resultColor = getNumberColor(resultNumber);
+
+    const ballAngle = 360 - ((360 / numbers.length) * resultIndex);
+    if (elements.ballGroup) {
+        elements.ballGroup.style.transition = 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        elements.ballGroup.style.transform = `rotate(${ballAngle}deg)`;
+    }
     
     // Animate wheel spin
     const spins = 5 + Math.random() * 3; // 5-8 full rotations
