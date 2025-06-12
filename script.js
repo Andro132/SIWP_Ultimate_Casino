@@ -1,11 +1,9 @@
-// Roulette Game Configuration
 const numbers = [
     0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36,
     11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9,
     22, 18, 29, 7, 28, 12, 35, 3, 26
 ];
 
-// Game State
 let gameState = {
     balance: 1000,
     selectedChipValue: 0,
@@ -15,7 +13,6 @@ let gameState = {
     lastResult: null
 };
 
-// DOM Elements
 const elements = {
     wheel: document.getElementById('wheel'),
     roulette: document.getElementById('roulette'),
@@ -36,7 +33,6 @@ const elements = {
     notifications: document.getElementById('notifications')
 };
 
-// Utility Functions
 function getNumberColor(num) {
     if (num === 0) return 'green';
     const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
@@ -50,7 +46,6 @@ function showNotification(message, type = 'info', duration = 3000) {
     
     elements.notifications.appendChild(notification);
     
-    // Auto remove
     setTimeout(() => {
         notification.style.animation = 'slideOutRight 0.3s ease forwards';
         setTimeout(() => {
@@ -60,7 +55,6 @@ function showNotification(message, type = 'info', duration = 3000) {
         }, 300);
     }, duration);
     
-    // Click to dismiss
     notification.addEventListener('click', () => {
         notification.style.animation = 'slideOutRight 0.3s ease forwards';
         setTimeout(() => {
@@ -76,7 +70,6 @@ function scrollToSection(sectionId) {
     if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
     }
-    // Close mobile menu if open
     if (elements.navbarNav) {
         elements.navbarNav.classList.remove('active');
     }
@@ -85,7 +78,6 @@ function scrollToSection(sectionId) {
     }
 }
 
-// Initialize Game
 document.addEventListener('DOMContentLoaded', function() {
     initializeGame();
     setupEventListeners();
@@ -95,19 +87,16 @@ function initializeGame() {
     drawRouletteWheel();
     updateDisplay();
     
-    // Welcome message
     setTimeout(() => {
         showNotification('Welcome to Royal Casino! Select your chips and place your bets.', 'info');
     }, 1000);
 }
 
 function setupEventListeners() {
-    // Chip selection
     elements.chipButtons.forEach(chip => {
         chip.addEventListener('click', () => selectChip(chip));
     });
     
-    // Game controls
     if (elements.spinBtn) {
         elements.spinBtn.addEventListener('click', spinWheel);
     }
@@ -115,15 +104,12 @@ function setupEventListeners() {
         elements.clearBetsBtn.addEventListener('click', clearAllBets);
     }
     
-    // Mobile menu
     if (elements.mobileMenuBtn) {
         elements.mobileMenuBtn.addEventListener('click', toggleMobileMenu);
     }
     
-    // Navbar scroll effect
     window.addEventListener('scroll', handleNavbarScroll);
     
-    // Close mobile menu when clicking outside
     document.addEventListener('click', (e) => {
         if (elements.navbar && !elements.navbar.contains(e.target)) {
             if (elements.navbarNav) {
@@ -135,7 +121,6 @@ function setupEventListeners() {
         }
     });
     
-    // Close modal when clicking outside
     if (elements.loginModal) {
         elements.loginModal.addEventListener('click', (e) => {
             if (e.target === elements.loginModal) {
@@ -144,7 +129,6 @@ function setupEventListeners() {
         });
     }
     
-    // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             hideLoginModal();
@@ -184,7 +168,6 @@ function drawRouletteWheel() {
         const angle = i * sliceAngle;
         const largeArc = sliceAngle > 180 ? 1 : 0;
         
-        // Calculate path coordinates for larger wheel (500x500 instead of 400x400)
         const centerX = 250;
         const centerY = 250;
         const radius = 220;
@@ -194,11 +177,9 @@ function drawRouletteWheel() {
         const x2 = centerX + radius * Math.cos((angle + sliceAngle) * Math.PI / 180);
         const y2 = centerY + radius * Math.sin((angle + sliceAngle) * Math.PI / 180);
         
-        // Create path element
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', `M${centerX},${centerY} L${x1},${y1} A${radius},${radius} 0 ${largeArc} 1 ${x2},${y2} Z`);
         
-        // Set color based on number
         const color = getNumberColor(numbers[i]);
         let fillColor;
         if (color === 'red') {
@@ -206,7 +187,7 @@ function drawRouletteWheel() {
         } else if (color === 'black') {
             fillColor = '#212529';
         } else {
-            fillColor = '#198754'; // green for 0
+            fillColor = '#198754'; 
         }
         
         path.setAttribute('fill', fillColor);
@@ -214,7 +195,6 @@ function drawRouletteWheel() {
         path.setAttribute('stroke-width', '1');
         elements.wheel.appendChild(path);
         
-        // Add number text
         const textAngle = angle + sliceAngle / 2;
         const textRadius = 170;
         const tx = centerX + textRadius * Math.cos(textAngle * Math.PI / 180);
@@ -235,10 +215,8 @@ function drawRouletteWheel() {
 }
 
 function selectChip(chipElement) {
-    // Remove selection from all chips
     elements.chipButtons.forEach(chip => chip.classList.remove('selected'));
     
-    // Select clicked chip
     chipElement.classList.add('selected');
     gameState.selectedChipValue = parseInt(chipElement.getAttribute('data-value'));
     
@@ -268,7 +246,6 @@ function placeBet(betType, betValue = null) {
         id: Date.now()
     };
     
-    // Handle different bet types
     switch (betType) {
         case 'number':
             const numberInput = elements.betNumber ? elements.betNumber.value : null;
@@ -280,7 +257,7 @@ function placeBet(betType, betValue = null) {
             bet.display = `Number ${bet.value}`;
             bet.odds = 35;
             if (elements.betNumber) {
-                elements.betNumber.value = ''; // Clear input
+                elements.betNumber.value = ''; 
             }
             break;
             
@@ -297,7 +274,6 @@ function placeBet(betType, betValue = null) {
             break;
     }
     
-    // Add bet to active bets
     gameState.activeBets.push(bet);
     gameState.balance -= gameState.selectedChipValue;
     gameState.totalBetAmount += gameState.selectedChipValue;
@@ -325,7 +301,6 @@ function spinWheel() {
         elements.spinText.textContent = 'Spinning...';
     }
     
-    // Clear previous results
     if (elements.result) {
         elements.result.innerHTML = '';
     }
@@ -333,19 +308,16 @@ function spinWheel() {
         elements.message.innerHTML = '';
     }
     
-    // Pick the winning number first
     const randomIndex = Math.floor(Math.random() * numbers.length);
     const winningNumber = numbers[randomIndex];
     const winningColor = getNumberColor(winningNumber);
     
-    // Store the result
     gameState.lastResult = {
         number: winningNumber,
         color: winningColor,
         index: randomIndex
     };
     
-    // Get ball element
     const ballElement = document.querySelector('#roulette circle[r="10"]');
     if (!ballElement) {
         console.error('Ball element not found');
@@ -354,44 +326,34 @@ function spinWheel() {
         return;
     }
     
-    // Calculate target position using EXACT same logic as wheel drawing
     const sliceAngle = 360 / numbers.length;
     const centerX = 250;
     const centerY = 250;
     const ballRadius = 210;
     
-    // Use the exact same angle calculation as the text positioning in drawRouletteWheel
     const targetAngle = randomIndex * sliceAngle + sliceAngle / 2;
     
-    // Calculate current ball position (starts at top, which is -90 degrees in our coordinate system)
-    const currentAngle = -90; // Ball starts at top (12 o'clock)
+    const currentAngle = -90; 
     
-    // Calculate how much we need to rotate
-    // Add multiple full rotations (5-8 spins) plus the target angle
-    const fullRotations = 5 + Math.random() * 3; // Random between 5-8 spins
+    const fullRotations = 5 + Math.random() * 3; 
     const totalRotation = fullRotations * 360 + (targetAngle - currentAngle);
     
-    // Apply CSS transition for smooth spinning
     ballElement.style.transition = 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
     ballElement.style.transformOrigin = `${centerX}px ${centerY}px`;
     ballElement.style.transform = `rotate(${totalRotation}deg)`;
     
-    // After animation completes, position ball at exact coordinates and show results
     setTimeout(() => {
-        // Calculate final ball position coordinates
         const ballX = centerX + ballRadius * Math.cos(targetAngle * Math.PI / 180);
         const ballY = centerY + ballRadius * Math.sin(targetAngle * Math.PI / 180);
         
-        // Remove transition and set exact position
         ballElement.style.transition = 'none';
         ballElement.style.transform = 'none';
         ballElement.setAttribute('cx', ballX);
         ballElement.setAttribute('cy', ballY);
         
-        // Process results
         processResults();
         resetSpinState();
-    }, 4000); // Match the 4s transition duration
+    }, 4000);
 }
 
 function resetSpinState() {
@@ -412,7 +374,6 @@ function processResults() {
     let totalWinnings = 0;
     let winningBets = [];
     
-    // Check each bet
     gameState.activeBets.forEach(bet => {
         let isWinner = false;
         
@@ -433,19 +394,16 @@ function processResults() {
         }
         
         if (isWinner) {
-            const winAmount = bet.amount * (bet.odds + 1); // Include original bet
+            const winAmount = bet.amount * (bet.odds + 1);
             totalWinnings += winAmount;
             winningBets.push({...bet, winAmount});
         }
     });
     
-    // Update balance
     gameState.balance += totalWinnings;
     
-    // Display results
     displayResults(result, totalWinnings, winningBets);
     
-    // Clear bets
     gameState.activeBets = [];
     gameState.totalBetAmount = 0;
     
@@ -453,7 +411,6 @@ function processResults() {
 }
 
 function displayResults(result, totalWinnings, winningBets) {
-    // Show result number
     const resultColor = result.color === 'red' ? '#DC3545' : 
                        result.color === 'black' ? '#212529' : '#198754';
     
@@ -465,7 +422,6 @@ function displayResults(result, totalWinnings, winningBets) {
         `;
     }
     
-    // Show win/loss message
     if (elements.message) {
         if (totalWinnings > 0) {
             elements.message.innerHTML = `
@@ -485,7 +441,6 @@ function displayResults(result, totalWinnings, winningBets) {
             showNotification('Better luck next time!', 'info', 3000);
         }
         
-        // Remove animation class after animation completes
         setTimeout(() => {
             if (elements.message) {
                 elements.message.classList.remove('bounce');
@@ -505,7 +460,6 @@ function clearAllBets() {
         return;
     }
     
-    // Refund all bets
     gameState.activeBets.forEach(bet => {
         gameState.balance += bet.amount;
     });
@@ -518,7 +472,6 @@ function clearAllBets() {
 }
 
 function updateDisplay() {
-    // Update balance and total bet
     if (elements.balance) {
         elements.balance.textContent = `$${gameState.balance}`;
     }
@@ -526,7 +479,6 @@ function updateDisplay() {
         elements.totalBet.textContent = `$${gameState.totalBetAmount}`;
     }
     
-    // Update active bets display
     if (elements.activeBets) {
         if (gameState.activeBets.length === 0) {
             elements.activeBets.innerHTML = '<p class="no-bets">No active bets</p>';
@@ -541,7 +493,6 @@ function updateDisplay() {
     }
 }
 
-// Modal Functions
 function showLoginModal() {
     if (elements.loginModal) {
         elements.loginModal.style.display = 'block';
@@ -565,24 +516,19 @@ function handleLogin() {
         return;
     }
     
-    // Demo login
     showNotification('Demo login successful! Welcome to Royal Casino!', 'success');
     hideLoginModal();
     
-    // Clear form
     email.value = '';
     password.value = '';
 }
 
-// Keyboard Shortcuts Info
 document.addEventListener('DOMContentLoaded', () => {
-    // Add keyboard shortcut info
     setTimeout(() => {
         showNotification('💡 Tip: Press SPACE to spin the wheel!', 'info', 4000);
     }, 5000);
 });
 
-// Prevent form submission on Enter in bet input
 document.addEventListener('DOMContentLoaded', () => {
     const betNumberInput = document.getElementById('betNumber');
     if (betNumberInput) {
@@ -595,7 +541,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Auto-save game state to localStorage
 function saveGameState() {
     localStorage.setItem('royalCasinoGameState', JSON.stringify({
         balance: gameState.balance,
@@ -608,7 +553,6 @@ function loadGameState() {
     if (saved) {
         try {
             const data = JSON.parse(saved);
-            // Only restore balance if last played within 24 hours
             if (Date.now() - data.lastPlayed < 24 * 60 * 60 * 1000) {
                 gameState.balance = data.balance;
                 updateDisplay();
@@ -620,19 +564,16 @@ function loadGameState() {
     }
 }
 
-// Save game state when balance changes
 const originalUpdateDisplay = updateDisplay;
 updateDisplay = function() {
     originalUpdateDisplay();
     saveGameState();
 };
 
-// Load game state on page load
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(loadGameState, 1000);
 });
 
-// Add some fun easter eggs
 let clickCount = 0;
 document.addEventListener('DOMContentLoaded', () => {
     const navbarBrand = document.querySelector('.navbar-brand');
@@ -649,7 +590,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Expose functions globally for onclick handlers
 window.scrollToSection = scrollToSection;
 window.placeBet = placeBet;
 window.showLoginModal = showLoginModal;
